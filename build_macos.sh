@@ -1,13 +1,14 @@
 # check that these are right for your system:
 export PYTHONMAJOR=3.9
-export pythonLocation=/Library/Frameworks/Python.framework/Versions/3.9
+export pythonLocation=/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9
+export C_INCLUDE_PATH=/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9
 
-export ARCHS="arm64"
-export CFLAGS="-arch arm64"
-export ARCHFLAGS="-arch arm64"
-# export ARCHS="x86_64"
-# export CFLAGS="-arch x86_64"
-# export ARCHFLAGS="-arch x86_64"
+# export ARCHS="arm64"
+# export CFLAGS="-arch arm64"
+# export ARCHFLAGS="-arch arm64"
+export ARCHS="x86_64"
+export CFLAGS="-arch x86_64"
+export ARCHFLAGS="-arch x86_64"
 
 # Below this you shouldn't need to change anything.
 CONFIGURATION=Release-$ARCHS

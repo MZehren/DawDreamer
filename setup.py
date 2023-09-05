@@ -61,7 +61,7 @@ elif platform.system() == "Linux":
 
 elif platform.system() == "Darwin":
 
-    build_folder = os.path.join(this_dir, "Builds", "MacOSX", "build", "Release-"+os.environ['ARCHS'])
+    build_folder = os.path.join(this_dir, "Builds", "MacOSX", "build", "Release-x86_64")
 
     shutil.copy(os.path.join(build_folder, 'dawdreamer.so'), os.path.join('dawdreamer', 'dawdreamer.so'))
 

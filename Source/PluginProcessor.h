@@ -12,16 +12,16 @@ class PluginProcessor : public ProcessorBase {
   ~PluginProcessor();
 
   bool canApplyBusesLayout(
-      const juce::AudioProcessor::BusesLayout& layout) override;
+      const juce::AudioProcessor::BusesLayout &layout) override;
 
-  bool setBusesLayout(const BusesLayout& arr) override;
+  bool setBusesLayout(const BusesLayout &arr) override;
 
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 
-  void processBlock(juce::AudioSampleBuffer& buffer,
-                    juce::MidiBuffer& midiBuffer) override;
+  void processBlock(juce::AudioSampleBuffer &buffer,
+                    juce::MidiBuffer &midiBuffer) override;
 
-  void automateParameters(AudioPlayHead::PositionInfo& posInfo,
+  void automateParameters(AudioPlayHead::PositionInfo &posInfo,
                           int numSamples) override;
 
   bool acceptsMidi() const override {
@@ -35,8 +35,8 @@ class PluginProcessor : public ProcessorBase {
 
   void reset() override;
 
-  bool loadPreset(const std::string& path);
-  bool loadVST3Preset(const std::string& path);
+  bool loadPreset(const std::string &path);
+  bool loadVST3Preset(const std::string &path);
 
   void createParameterLayout();
 
@@ -49,7 +49,7 @@ class PluginProcessor : public ProcessorBase {
 
   const juce::String getName() const override { return "PluginProcessor"; }
 
-  bool loadMidi(const std::string& path, bool clearPrevious, bool isBeats,
+  bool loadMidi(const std::string &path, bool clearPrevious, bool isBeats,
                 bool allEvents);
 
   void clearMidi();
@@ -60,7 +60,7 @@ class PluginProcessor : public ProcessorBase {
                    const double noteStart, const double noteLength,
                    bool isBeats);
 
-  void setPlayHead(AudioPlayHead* newPlayHead) override;
+  void setPlayHead(AudioPlayHead *newPlayHead) override;
 
   void openEditor();
 
@@ -68,7 +68,7 @@ class PluginProcessor : public ProcessorBase {
 
   void saveStateInformation(std::string filepath);
 
-  void saveMIDI(std::string& savePath);
+  void saveMIDI(std::string &savePath);
 
  private:
   bool loadPlugin(double sampleRate, int samplesPerBlock);
@@ -88,8 +88,8 @@ class PluginProcessor : public ProcessorBase {
   int myMidiMessagePositionQN = -1;
   int myMidiMessagePositionSec = -1;
 
-  MidiBuffer::Iterator* myMidiIteratorQN = nullptr;
-  MidiBuffer::Iterator* myMidiIteratorSec = nullptr;
+  MidiBuffer::Iterator *myMidiIteratorQN = nullptr;
+  MidiBuffer::Iterator *myMidiIteratorSec = nullptr;
 
   bool myIsMessageBetweenQN = false;
   bool myIsMessageBetweenSec = false;

@@ -19,7 +19,7 @@ struct PresetVisitor : public ExtensionsVisitor {
   PresetVisitor(const std::string presetFilePath)
       : presetFilePath(presetFilePath) {}
 
-  void visitVST3Client(const ExtensionsVisitor::VST3Client& client) override {
+  void visitVST3Client(const ExtensionsVisitor::VST3Client &client) override {
     juce::File presetFile(presetFilePath);
     juce::MemoryBlock presetData;
 
@@ -83,17 +83,16 @@ bool PluginProcessor::loadPlugin(double sampleRate, int samplesPerBlock) {
 
   String errorMessage;
 
+  myPlugin = pluginFormatManager.createPluginInstance(
+      *pluginDescriptions[0], sampleRate, samplesPerBlock, errorMessage);
 
-    myPlugin = pluginFormatManager.createPluginInstance(
-        *pluginDescriptions[0], sampleRate, samplesPerBlock, errorMessage);
+  if (myPlugin.get() == nullptr) {
+    throw std::runtime_error("PluginProcessor::loadPlugin error: " +
+                             errorMessage.toStdString());
+  }
+  // We loaded the plugin.
 
-    if (myPlugin.get() == nullptr) {
-      throw std::runtime_error("PluginProcessor::loadPlugin error: " +
-                               errorMessage.toStdString());
-    }
-    // We loaded the plugin.
-  
-
+  // auto outputs = 2;
   auto outputs = myPlugin->getTotalNumOutputChannels();
 
   if (outputs == 0) {
@@ -104,6 +103,12 @@ bool PluginProcessor::loadPlugin(double sampleRate, int samplesPerBlock) {
   auto inputs = myPlugin->getTotalNumInputChannels();
 
   ProcessorBase::setBusesLayout(myPlugin->getBusesLayout());
+  // BusesLayout layouts;
+  // for (int i = 0; i < inputs; i++)
+  //   layouts.inputBuses.add(myPlugin->getChannelLayoutOfBus(true, i));
+  // for (int i = 0; i < outputs; i++)
+  //   layouts.outputBuses.add(myPlugin->getChannelLayoutOfBus(false, i));
+  // ProcessorBase::setBusesLayout(layouts);
 
   this->setPlayConfigDetails(inputs, outputs, sampleRate, samplesPerBlock);
   myPlugin->prepareToPlay(sampleRate, samplesPerBlock);
@@ -141,7 +146,7 @@ PluginProcessor::~PluginProcessor() {
   delete myMidiIteratorSec;
 }
 
-void PluginProcessor::setPlayHead(AudioPlayHead* newPlayHead) {
+void PluginProcessor::setPlayHead(AudioPlayHead *newPlayHead) {
   ProcessorBase::setPlayHead(newPlayHead);
   if (myPlugin.get()) {
     myPlugin->setPlayHead(newPlayHead);
@@ -149,13 +154,13 @@ void PluginProcessor::setPlayHead(AudioPlayHead* newPlayHead) {
 }
 
 bool PluginProcessor::canApplyBusesLayout(
-    const juce::AudioProcessor::BusesLayout& layout) {
+    const juce::AudioProcessor::BusesLayout &layout) {
   THROW_ERROR_IF_NO_PLUGIN
 
   return myPlugin->checkBusesLayoutSupported(layout);
 }
 
-bool PluginProcessor::setBusesLayout(const BusesLayout& arr) {
+bool PluginProcessor::setBusesLayout(const BusesLayout &arr) {
   THROW_ERROR_IF_NO_PLUGIN
   ProcessorBase::setBusesLayout(arr);
   return myPlugin->setBusesLayout(arr);
@@ -166,8 +171,8 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   myPlugin->prepareToPlay(sampleRate, samplesPerBlock);
 }
 
-void PluginProcessor::processBlock(juce::AudioSampleBuffer& buffer,
-                                   juce::MidiBuffer& midiBuffer) {
+void PluginProcessor::processBlock(juce::AudioSampleBuffer &buffer,
+                                   juce::MidiBuffer &midiBuffer) {
   // todo: PluginProcessor should be able to use the incoming midiBuffer too.
 
   THROW_ERROR_IF_NO_PLUGIN
@@ -237,7 +242,7 @@ void PluginProcessor::processBlock(juce::AudioSampleBuffer& buffer,
   ProcessorBase::processBlock(buffer, midiBuffer);
 }
 
-void PluginProcessor::automateParameters(AudioPlayHead::PositionInfo& posInfo,
+void PluginProcessor::automateParameters(AudioPlayHead::PositionInfo &posInfo,
                                          int numSamples) {
   THROW_ERROR_IF_NO_PLUGIN
 
@@ -245,7 +250,7 @@ void PluginProcessor::automateParameters(AudioPlayHead::PositionInfo& posInfo,
 
   auto allParameters = this->getParameters();
 
-  for (juce::AudioProcessorParameter* parameter : myPlugin->getParameters()) {
+  for (juce::AudioProcessorParameter *parameter : myPlugin->getParameters()) {
     auto name = parameter->getName(DAW_PARAMETER_MAX_NAME_LENGTH);
 
     if (name.compare("") == 0 || !parameter->isAutomatable()) {
@@ -253,7 +258,7 @@ void PluginProcessor::automateParameters(AudioPlayHead::PositionInfo& posInfo,
       continue;
     }
 
-    auto theParameter = (AutomateParameterFloat*)allParameters.getUnchecked(i);
+    auto theParameter = (AutomateParameterFloat *)allParameters.getUnchecked(i);
 
     if (theParameter->isAutomated()) {
       parameter->beginChangeGesture();
@@ -297,7 +302,7 @@ void PluginProcessor::reset() {
   ProcessorBase::reset();
 }
 
-bool PluginProcessor::loadPreset(const std::string& path) {
+bool PluginProcessor::loadPreset(const std::string &path) {
   THROW_ERROR_IF_NO_PLUGIN
 
   try {
@@ -314,19 +319,19 @@ bool PluginProcessor::loadPreset(const std::string& path) {
                                                    mb.getSize());
 
     int i = 0;
-    for (auto* parameter : myPlugin->getParameters()) {
+    for (auto *parameter : myPlugin->getParameters()) {
       setParameter(i, parameter->getValue());
       i++;
     }
 
     return result;
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     throw std::runtime_error(
         std::string("Error: (PluginProcessor::loadPreset) ") + e.what());
   }
 }
 
-bool PluginProcessor::loadVST3Preset(const std::string& path) {
+bool PluginProcessor::loadVST3Preset(const std::string &path) {
   THROW_ERROR_IF_NO_PLUGIN
 
   juce::File fPath(path);
@@ -344,12 +349,12 @@ bool PluginProcessor::loadVST3Preset(const std::string& path) {
 
   try {
     myPlugin->getExtensions(presetVisitor);
-  } catch (const std::exception&) {
+  } catch (const std::exception &) {
     throw std::runtime_error("PluginProcessor::loadVST3Preset: unknown error.");
   }
 
   int i = 0;
-  for (auto* parameter : myPlugin->getParameters()) {
+  for (auto *parameter : myPlugin->getParameters()) {
     setParameter(i, parameter->getValue());
     i++;
   }
@@ -366,11 +371,11 @@ void PluginProcessor::loadStateInformation(std::string filepath) {
   File file = File(filepath);
   file.loadFileAsData(state);
 
-  myPlugin->setStateInformation((const char*)state.getData(),
+  myPlugin->setStateInformation((const char *)state.getData(),
                                 (int)state.getSize());
 
   int i = 0;
-  for (auto* parameter : myPlugin->getParameters()) {
+  for (auto *parameter : myPlugin->getParameters()) {
     ProcessorBase::setAutomationValByIndex(i, parameter->getValue());
     i++;
   }
@@ -378,7 +383,10 @@ void PluginProcessor::loadStateInformation(std::string filepath) {
   // todo: this is a little hacky. We create a window because this forces the
   // loaded state to take effect in certain plugins. This allows us to call
   // load_state and not bother calling open_editor().
-  StandalonePluginWindow tmp_window(*this, *myPlugin);
+  // StandalonePluginWindow tmp_window(*this, *myPlugin);
+  // tmp_window.show();
+  // StandalonePluginWindow::openWindowAndWait(*this, *myPlugin);
+  StandalonePluginWindow::openWindow(*this, *myPlugin);
 }
 
 void PluginProcessor::saveStateInformation(std::string filepath) {
@@ -403,7 +411,7 @@ void PluginProcessor::createParameterLayout() {
   juce::AudioProcessorParameterGroup group;
 
   int i = 0;
-  for (auto* parameter : myPlugin->getParameters()) {
+  for (auto *parameter : myPlugin->getParameters()) {
     auto parameterName = parameter->getName(DAW_PARAMETER_MAX_NAME_LENGTH);
     std::string paramID = std::to_string(i);
 
@@ -418,7 +426,7 @@ void PluginProcessor::createParameterLayout() {
   this->updateHostDisplay();
 
   i = 0;
-  for (auto* parameter : this->getParameters()) {
+  for (auto *parameter : this->getParameters()) {
     ProcessorBase::setAutomationValByIndex(i, parameter->getValue());
     i++;
   }
@@ -484,8 +492,8 @@ const PluginPatch PluginProcessor::getPatch() {
   posInfo.setTimeInSamples(0.);
 
   int i = 0;
-  for (auto& uncastedParameter : this->getParameters()) {
-    auto parameter = (AutomateParameterFloat*)uncastedParameter;
+  for (auto &uncastedParameter : this->getParameters()) {
+    auto parameter = (AutomateParameterFloat *)uncastedParameter;
     float val = parameter->sample(posInfo);
     params.emplace_back(i, val);
     i++;
@@ -506,7 +514,7 @@ int PluginProcessor::getNumMidiEvents() {
   return myMidiBufferSec.getNumEvents() + myMidiBufferQN.getNumEvents();
 };
 
-bool PluginProcessor::loadMidi(const std::string& path, bool clearPrevious,
+bool PluginProcessor::loadMidi(const std::string &path, bool clearPrevious,
                                bool isBeats, bool allEvents) {
   if (!std::filesystem::exists(path.c_str())) {
     throw std::runtime_error("File not found: " + path);
@@ -526,9 +534,9 @@ bool PluginProcessor::loadMidi(const std::string& path, bool clearPrevious,
     midiFile.convertTimestampTicksToSeconds();
 
     for (int t = 0; t < midiFile.getNumTracks(); t++) {
-      const MidiMessageSequence* track = midiFile.getTrack(t);
+      const MidiMessageSequence *track = midiFile.getTrack(t);
       for (int i = 0; i < track->getNumEvents(); i++) {
-        MidiMessage& m = track->getEventPointer(i)->message;
+        MidiMessage &m = track->getEventPointer(i)->message;
         int sampleOffset = (int)(mySampleRate * m.getTimeStamp());
         if (allEvents || m.isNoteOff() || m.isNoteOn()) {
           myMidiBufferSec.addEvent(m, sampleOffset);
@@ -536,16 +544,16 @@ bool PluginProcessor::loadMidi(const std::string& path, bool clearPrevious,
       }
     }
   } else {
-    auto timeFormat = midiFile.getTimeFormat();  // the ppqn (Ableton makes midi
-                                                 // files with 96 ppqn)
+    auto timeFormat = midiFile.getTimeFormat();  // the ppqn (Ableton makes
+                                                 // midi files with 96 ppqn)
 
     for (int t = 0; t < midiFile.getNumTracks(); t++) {
-      const MidiMessageSequence* track = midiFile.getTrack(t);
+      const MidiMessageSequence *track = midiFile.getTrack(t);
       for (int i = 0; i < track->getNumEvents(); i++) {
-        MidiMessage& m = track->getEventPointer(i)->message;
+        MidiMessage &m = track->getEventPointer(i)->message;
         if (allEvents || m.isNoteOff() || m.isNoteOn()) {
-          // convert timestamp from its original time format to our high
-          // resolution PPQN
+          // convert timestamp from its original time format to our
+          // high resolution PPQN
           auto timeStamp = m.getTimeStamp() * PPQN / timeFormat;
           myMidiBufferQN.addEvent(m, timeStamp);
         }
@@ -594,7 +602,7 @@ bool PluginProcessor::addMidiNote(uint8 midiNote, uint8 midiVelocity,
   return true;
 }
 
-void PluginProcessor::saveMIDI(std::string& savePath) {
+void PluginProcessor::saveMIDI(std::string &savePath) {
   MidiFile file;
 
   // 30*80 = 2400, so that's why the MIDI messages had their
@@ -660,7 +668,7 @@ py::list PluginProcessorWrapper::getPluginParametersDescription() {
   py::list myList;
 
   // get the parameters as an AudioProcessorParameter array
-  const Array<AudioProcessorParameter*>& processorParams =
+  const Array<AudioProcessorParameter *> &processorParams =
       myPlugin->getParameters();
   for (int i = 0; i < myPlugin->getNumParameters(); i++) {
     std::string theName = (processorParams[i])
@@ -734,7 +742,7 @@ py::list PluginProcessorWrapper::getPluginParametersDescription() {
                               .toStdString();
 
     std::vector<std::string> valueStrings;
-    for (auto& valueString : processorParams[i]->getAllValueStrings()) {
+    for (auto &valueString : processorParams[i]->getAllValueStrings()) {
       valueStrings.push_back(valueString.toStdString());
     }
 

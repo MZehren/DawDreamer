@@ -22,8 +22,8 @@
 
 class StandalonePluginWindow : public juce::DocumentWindow {
  public:
-  StandalonePluginWindow(PluginProcessor& dawDreamerPluginProcessor,
-                         juce::AudioProcessor& processor)
+  StandalonePluginWindow(PluginProcessor &dawDreamerPluginProcessor,
+                         juce::AudioProcessor &processor)
       : DocumentWindow("DawDreamer: " + processor.getName(),
                        juce::LookAndFeel::getDefaultLookAndFeel().findColour(
                            juce::ResizableWindow::backgroundColourId),
@@ -34,7 +34,7 @@ class StandalonePluginWindow : public juce::DocumentWindow {
     setUsingNativeTitleBar(true);
 
     if (processor.hasEditor()) {
-      if (auto* editor = processor.createEditorIfNeeded()) {
+      if (auto *editor = processor.createEditorIfNeeded()) {
         setContentOwned(editor, true);
         setResizable(editor->isResizable(), false);
       } else {
@@ -45,13 +45,55 @@ class StandalonePluginWindow : public juce::DocumentWindow {
     }
   }
 
+  static void openWindow(PluginProcessor &dawDreamerPluginProcessor,
+                         juce::AudioProcessor &processor) {
+    bool shouldThrowErrorAlreadySet = false;
+
+    JUCE_AUTORELEASEPOOL {
+      StandalonePluginWindow window(dawDreamerPluginProcessor, processor);
+      window.show();
+
+      // Run in a tight loop so that we don't have to call ->stopDispatchLoop(),
+      // which causes the MessageManager to become unusable in the future.
+      // The window can be closed by sending a KeyboardInterrupt or closing
+      // the window in the UI.
+      // while (window.isVisible())
+      for (int i = 0; i < 100; i++) {
+        if (PyErr_CheckSignals() != 0) {
+          window.closeButtonPressed();
+          shouldThrowErrorAlreadySet = true;
+          break;
+        }
+
+        {
+          // Release the GIL to allow other Python threads to run in the
+          // background while we the UI is running:
+          py::gil_scoped_release release;
+          juce::MessageManager::getInstance()->runDispatchLoopUntil(10);
+        }
+        if (i > 10) {
+          window.closeButtonPressed();
+          break;
+        }
+      }
+    }
+
+    // Once the Autorelease pool has been drained, pump the dispatch loop one
+    // more time to process any window close events:
+    juce::MessageManager::getInstance()->runDispatchLoopUntil(10);
+
+    if (shouldThrowErrorAlreadySet) {
+      throw py::error_already_set();
+    }
+  }
+
   /**
    * Open a native window to show a given AudioProcessor's editor UI,
    * pumping the juce::MessageManager run loop as necessary to service
    * UI events.
    */
-  static void openWindowAndWait(PluginProcessor& dawDreamerPluginProcessor,
-                                juce::AudioProcessor& processor) {
+  static void openWindowAndWait(PluginProcessor &dawDreamerPluginProcessor,
+                                juce::AudioProcessor &processor) {
     bool shouldThrowErrorAlreadySet = false;
 
     JUCE_AUTORELEASEPOOL {
@@ -110,8 +152,8 @@ class StandalonePluginWindow : public juce::DocumentWindow {
   }
 
  private:
-  juce::AudioProcessor& processor;
-  PluginProcessor& dawDreamerPluginProcessor;
+  juce::AudioProcessor &processor;
+  PluginProcessor &dawDreamerPluginProcessor;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(StandalonePluginWindow)
 };
