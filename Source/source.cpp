@@ -350,6 +350,9 @@ but the filter mode cannot under automation.";
            arg("filepath"), "Save the state to a file.")
       .def("load_state", &PluginProcessorWrapper::loadStateInformation,
            arg("filepath"), "Load the state from a file.")
+      .def("force_state", &PluginProcessorWrapper::forceState,
+           "Force an update of the state (e.g. to take into account a program "
+           "change).")
       .def("open_editor", &PluginProcessorWrapper::openEditor,
            "Open the UI editor for the plugin.")
       .def("load_preset", &PluginProcessorWrapper::loadPreset, arg("filepath"),

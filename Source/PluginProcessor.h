@@ -66,6 +66,8 @@ class PluginProcessor : public ProcessorBase {
 
   void loadStateInformation(std::string filepath);
 
+  void forceState();
+
   void saveStateInformation(std::string filepath);
 
   void saveMIDI(std::string &savePath);

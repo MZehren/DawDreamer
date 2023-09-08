@@ -57,8 +57,8 @@ class StandalonePluginWindow : public juce::DocumentWindow {
       // which causes the MessageManager to become unusable in the future.
       // The window can be closed by sending a KeyboardInterrupt or closing
       // the window in the UI.
-      // while (window.isVisible())
-      for (int i = 0; i < 100; i++) {
+      int i = 0;
+      while (window.isVisible()) {
         if (PyErr_CheckSignals() != 0) {
           window.closeButtonPressed();
           shouldThrowErrorAlreadySet = true;
@@ -71,10 +71,11 @@ class StandalonePluginWindow : public juce::DocumentWindow {
           py::gil_scoped_release release;
           juce::MessageManager::getInstance()->runDispatchLoopUntil(10);
         }
-        if (i > 10) {
+        if (i > 1000) {
           window.closeButtonPressed();
           break;
         }
+        i++;
       }
     }
 

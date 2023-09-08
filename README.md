@@ -56,6 +56,10 @@ Install with [PyPI](https://pypi.org/project/dawdreamer/):
 
 `pip install dawdreamer`
 
+To install local version:
+`sh build_macos`
+`pip install .`
+
 ## API Documentation
 
 [https://dirt.design/DawDreamer/](https://dirt.design/DawDreamer/)
