@@ -277,7 +277,7 @@ py::array_t<float> ProcessorBase::getAudioFrames() {
 void ProcessorBase::setRecorderLength(int numSamples) {
   m_expectedRecordNumSamples = numSamples;
 
-  int numChannels = this->getTotalNumOutputChannels();
+  int numChannels = this->getTotalNumOutputChannels();  // or 2
 
   myRecordBuffer.setSize(numChannels, m_recordEnable ? numSamples : 0);
 }

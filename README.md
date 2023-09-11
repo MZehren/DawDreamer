@@ -57,7 +57,7 @@ Install with [PyPI](https://pypi.org/project/dawdreamer/):
 `pip install dawdreamer`
 
 To install local version:
-`sh build_macos`
+`sh build_macos.sh`
 `pip install .`
 
 ## API Documentation

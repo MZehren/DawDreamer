@@ -227,8 +227,8 @@ bool RenderEngine::render(const double renderLength, bool isBeats) {
 
     audioBufferNumChans =
         std::max(audioBufferNumChans, processor->getTotalNumInputChannels());
-    audioBufferNumChans =
-        std::max(audioBufferNumChans, processor->getMainBusNumOutputChannels());
+    audioBufferNumChans = std::max(
+        audioBufferNumChans, processor->getMainBusNumOutputChannels());  // or 2
 
     auto processorBase = dynamic_cast<ProcessorBase*>(processor);
     if (processorBase) {
