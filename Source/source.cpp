@@ -351,6 +351,7 @@ but the filter mode cannot under automation.";
       .def("load_state", &PluginProcessorWrapper::loadStateInformation,
            arg("filepath"), "Load the state from a file.")
       .def("force_state", &PluginProcessorWrapper::forceState,
+           arg("secondsToWait"),
            "Force an update of the state (e.g. to take into account a program "
            "change).")
       .def("open_editor", &PluginProcessorWrapper::openEditor,

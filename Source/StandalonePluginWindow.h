@@ -46,7 +46,7 @@ class StandalonePluginWindow : public juce::DocumentWindow {
   }
 
   static void openWindow(PluginProcessor &dawDreamerPluginProcessor,
-                         juce::AudioProcessor &processor) {
+                         juce::AudioProcessor &processor, float secondsOpen) {
     bool shouldThrowErrorAlreadySet = false;
 
     JUCE_AUTORELEASEPOOL {
@@ -71,7 +71,7 @@ class StandalonePluginWindow : public juce::DocumentWindow {
           py::gil_scoped_release release;
           juce::MessageManager::getInstance()->runDispatchLoopUntil(10);
         }
-        if (i > 1000) {
+        if (i > secondsOpen * 100) {  // 1s = 100 centiseconds
           window.closeButtonPressed();
           break;
         }

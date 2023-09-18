@@ -389,8 +389,8 @@ void PluginProcessor::loadStateInformation(std::string filepath) {
   // StandalonePluginWindow::openWindow(*this, *myPlugin);
 }
 
-void PluginProcessor::forceState() {
-  StandalonePluginWindow::openWindow(*this, *myPlugin);
+void PluginProcessor::forceState(float secondsToWait) {
+  StandalonePluginWindow::openWindow(*this, *myPlugin,  secondsToWait);
 }
 
 void PluginProcessor::saveStateInformation(std::string filepath) {

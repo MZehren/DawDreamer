@@ -66,7 +66,7 @@ class PluginProcessor : public ProcessorBase {
 
   void loadStateInformation(std::string filepath);
 
-  void forceState();
+  void forceState(float secondsToWait);
 
   void saveStateInformation(std::string filepath);
 
